@@ -18,3 +18,7 @@ logs/*.jsonl
 .pytest_cache/
 .mypy_cache/
 .DS_Store
+
+# Self-rebuild guard output
+.venv.broken-*/
+logs/*.log
