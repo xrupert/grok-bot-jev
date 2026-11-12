@@ -70,9 +70,23 @@ class TestKeyPath(unittest.TestCase):
     def test_missing_key_raises(self):
         env = {k: v for k, v in os.environ.items() if k != "TYPESAFE_API_KEY"}
         with mock.patch.dict(os.environ, env, clear=True), \
-             mock.patch.object(secrets, "_keyring_lookup", side_effect=RuntimeError("no backend")):
+             mock.patch.object(secrets, "_keyring_lookup", side_effect=RuntimeError("no backend")), \
+             mock.patch.object(secrets, "_box_bus_lookup", side_effect=RuntimeError("no backend")):
             with self.assertRaises(secrets.MissingKeyError):
                 secrets.get_typesafe_api_key()
+
+    def test_live_bus_without_keyring_falls_back_to_box_bus(self):
+        env = {k: v for k, v in os.environ.items() if k != "TYPESAFE_API_KEY"}
+        with tempfile.TemporaryDirectory() as d:
+            env["DBUS_SESSION_BUS_ADDRESS"] = f"unix:path={d}/agent-bus"
+            sock = Path(d) / "bus"
+            with mock.patch.dict(os.environ, env, clear=True), \
+                 mock.patch.object(secrets, "BUS_SOCKET", sock), \
+                 mock.patch.object(secrets, "_is_socket", lambda p: True), \
+                 mock.patch.object(secrets, "_keyring_lookup", side_effect=RuntimeError("NoKeyringError")), \
+                 mock.patch.object(secrets, "_box_bus_lookup", return_value="k" * 8):
+                self.assertEqual(secrets.get_typesafe_api_key(), "k" * 8)
+                self.assertEqual(os.environ["DBUS_SESSION_BUS_ADDRESS"], f"unix:path={sock}")
 
 
 class TestGoal(Base):

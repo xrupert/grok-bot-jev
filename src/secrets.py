@@ -39,6 +39,22 @@ def _pin_bus() -> None:
         os.environ["XDG_RUNTIME_DIR"] = str(BUS_SOCKET.parent)
 
 
+def _force_box_bus() -> bool:
+    """Switch to the box bus (where gnome-keyring runs). True if that changed the address."""
+    target = f"unix:path={BUS_SOCKET}"
+    if not _is_socket(BUS_SOCKET) or os.environ.get("DBUS_SESSION_BUS_ADDRESS") == target:
+        return False
+    os.environ["DBUS_SESSION_BUS_ADDRESS"] = target
+    os.environ["XDG_RUNTIME_DIR"] = str(BUS_SOCKET.parent)
+    return True
+
+
+def _box_bus_lookup() -> str:
+    from keyring.backends import SecretService
+
+    return (SecretService.Keyring().get_password(KEY_NAME, KEY_NAME) or "").strip()
+
+
 def _keyring_lookup() -> str:
     import keyring  # imported only after the bus is pinned
 
@@ -51,7 +67,13 @@ def get_typesafe_api_key() -> str:
         return key
     _pin_bus()
     try:
-        key = _keyring_lookup()
+        try:
+            key = _keyring_lookup()
+        except Exception:
+            key = ""
+        if not key and _force_box_bus():
+            # 2026-11-12 Engineer: inherited bus may be live but have no Secret Service (Loop's per-agent bus).
+            key = _box_bus_lookup()
     except Exception as exc:  # no backend, locked keyring, dbus down
         raise MissingKeyError(
             f"{KEY_NAME} not in env and keyring lookup failed ({type(exc).__name__})"
