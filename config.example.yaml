@@ -6,7 +6,16 @@ model: jev-latest
 # shadow logs advice; active requires the Grok Bot skill to honor route.action.
 mode: shadow  # shadow | active
 
+# Fleet gate (jev-router skill). off | log_only | enforce. Only Chris or Primo changes it.
+# log_only: call Jev, act on the old logic, log both (acted_on=old).
+# enforce: act on Jev's choice (acted_on=jev). Needs a separate Chris green before turning on.
+# Quote the value: bare `off` is read as false by YAML (handled, but be explicit).
+gate: "log_only"
+# Per-type overrides, e.g. costly_action_gate: "enforce"
+gate_types: {}
+
 thresholds:
+  gate_confidence_min: 0.70  # below this, step one tier toward caution
   min_choice_confidence: 0.55
   reuse_min: 0.65
   subagent_min: 0.75

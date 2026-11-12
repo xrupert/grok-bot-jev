@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.config import load_config, resolve_log_path
+import hashlib
+import json
+import time
+
+from src.config import gate_mode, load_config, resolve_decisions_path, resolve_log_path
 from src.jev_client import system_one
 from src.logger import log_run
+from src.secrets import MissingKeyError
 
 
 BYPASS_MARKERS = ("bypass jev", "bypass jev:", "no jev")
@@ -18,21 +23,8 @@ def _bypassed(state: dict[str, Any]) -> bool:
     return any(m in raw for m in BYPASS_MARKERS)
 
 
-def route_task(state: dict[str, Any]) -> dict[str, Any]:
-    """Run Jev gates and return a routing decision for Grok Bot."""
-    cfg = load_config()
-    log_path = resolve_log_path(cfg)
-
-    if not cfg.get("enabled", True) or _bypassed(state):
-        out = {
-            "action": "proceed_full",
-            "reason": "lab disabled or bypass jev",
-            "mode": cfg.get("mode"),
-            "jev_used": False,
-            "details": {},
-        }
-        log_run(log_path, {"event": "route", "state_goal": state.get("goal"), **out})
-        return out
+def _jev_route(state: dict[str, Any], cfg: dict[str, Any], log_path) -> dict[str, Any]:
+    """Original Jev routing (one system_one call). Expects state["goal"] already normalized."""
 
     # Keep the kill-switch path dependency-free so it works during incidents.
     from typesafe_sdk import Choice, Noul, Score
@@ -156,4 +148,123 @@ def route_task(state: dict[str, Any]) -> dict[str, Any]:
             "details": details,
         },
     )
+    return out
+
+
+# ---- 2026-11-12 Engineer: gate modes, goal check, decisions ledger (jev-router skill) ----
+
+class GoalError(ValueError):
+    pass
+
+
+ACTION_TO_CHOICE = {
+    "proceed_full": "proceed", "allow_subagent": "proceed",
+    "reuse_cache": "cheaper_lane", "run_deterministic": "cheaper_lane",
+    "chat_only": "cheaper_lane", "research_capped": "cheaper_lane",
+    "stop_retry": "hold", "ask_human": "ask_chris",
+}
+CAUTION = ["proceed", "cheaper_lane", "hold", "ask_chris"]
+DECISION_TYPES = ("costly_action_gate", "needs_approval")
+
+
+def extract_goal(state: dict[str, Any]) -> str:
+    ctx = state.get("context") if isinstance(state.get("context"), dict) else {}
+    for v in (state.get("goal"), ctx.get("goal"), state.get("raw")):
+        if isinstance(v, str) and v.strip():
+            return v.strip()
+    raise GoalError("goal is required: set context.goal (or goal) to a non-empty string under 300 chars")
+
+
+def _step_down(choice: str) -> str:
+    i = CAUTION.index(choice)
+    return CAUTION[min(i + 1, len(CAUTION) - 1)]
+
+
+def _more_cautious(a: str, b: str) -> str:
+    return a if CAUTION.index(a) >= CAUTION.index(b) else b
+
+
+def _input_hash(state: dict[str, Any]) -> str:
+    raw = json.dumps(state, sort_keys=True, ensure_ascii=False, default=str)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+
+
+def route_task(state: dict[str, Any]) -> dict[str, Any]:
+    """Validate goal, apply gate mode (off | log_only | enforce), run Jev when needed,
+    and write one row to the decisions ledger on every path. Raises GoalError on an empty goal
+    and MissingKeyError (after logging) when Jev must run but no key is found."""
+    goal = extract_goal(state)
+    cfg = load_config()
+    log_path = resolve_log_path(cfg)
+    dec_path = resolve_decisions_path(cfg)
+    ctx = state.get("context") if isinstance(state.get("context"), dict) else {}
+    dtype = state.get("decision_type") or "costly_action_gate"
+    if dtype not in DECISION_TYPES:
+        dtype = "costly_action_gate"
+    green = str(ctx.get("green") or state.get("green") or "").strip()
+    thr = cfg.get("thresholds") or {}
+    conf_min = float(thr.get("gate_confidence_min", 0.70))
+
+    gate = gate_mode(cfg, dtype)
+    if not cfg.get("enabled", True) or _bypassed({**state, "goal": goal}):
+        gate = "off"
+
+    # needs_approval code rule runs before Jev, in every mode.
+    if dtype == "needs_approval":
+        baseline = "proceed" if green else "ask_chris"
+    else:
+        baseline = "proceed"
+
+    row = {
+        "caller": state.get("caller") or "unknown", "decision_type": dtype,
+        "action": ctx.get("action") or state.get("action") or "", "input_hash": _input_hash(state),
+        "choice": None, "confidence": None, "mode": gate, "acted_on": None,
+        "green": green if dtype == "needs_approval" else "", "outcome": None,
+        "cost_cents": None, "latency_ms": None, "error": "",
+    }
+    t0 = time.monotonic()
+
+    def _write(**kw):
+        row.update(kw)
+        row["latency_ms"] = int((time.monotonic() - t0) * 1000)
+        log_run(dec_path, dict(row))
+
+    if gate == "off":
+        out = {"action": "proceed_full", "reason": "gate off / disabled / bypass jev",
+               "mode": cfg.get("mode"), "gate": "off", "jev_used": False, "details": {},
+               "choice": baseline, "jev_choice": None, "confidence": None,
+               "acted_on": "code_rule" if dtype == "needs_approval" else "old"}
+        _write(choice=baseline, acted_on=out["acted_on"])
+        log_run(log_path, {"event": "route", "goal": goal[:300], **{k: out[k] for k in ("action", "reason", "gate")}})
+        return out
+
+    jstate = dict(state)
+    jstate["goal"] = goal
+    for k in ("cached_artifact", "prior_error", "same_error_count"):
+        if k not in jstate and k in ctx:
+            jstate[k] = ctx[k]
+    try:
+        out = _jev_route(jstate, cfg, log_path)
+    except MissingKeyError:
+        _write(error="key_missing", acted_on="fail_closed")
+        raise
+    except Exception as exc:
+        _write(error=f"jev_error:{type(exc).__name__}", acted_on="fail_closed")
+        raise
+
+    jev_choice = ACTION_TO_CHOICE.get(out["action"], "hold")
+    conf = out["details"].get("intent_confidence")
+    if conf is not None and float(conf) < conf_min:
+        jev_choice = _step_down(jev_choice)
+    if dtype == "needs_approval":
+        # Jev can add doubt but never clears a missing green.
+        jev_choice = _more_cautious(jev_choice, baseline)
+
+    if gate == "enforce":
+        choice, acted_on = jev_choice, "jev"
+    else:  # log_only
+        choice, acted_on = baseline, "old"
+    out.update({"gate": gate, "choice": choice, "jev_choice": jev_choice,
+                "confidence": conf, "acted_on": acted_on})
+    _write(choice=jev_choice, confidence=conf, acted_on=acted_on)
     return out

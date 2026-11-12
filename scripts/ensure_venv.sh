@@ -7,7 +7,7 @@
 # Usage: ensure_venv.sh [project_dir]   exit 0 = venv ready, 1 = rebuild failed (see log)
 set -u
 D="${1:-$(cd "$(dirname "$0")/.." && pwd)}"
-MODS="${ENSURE_VENV_MODULES:-typesafe_sdk yaml}"          # space-separated import names
+MODS="${ENSURE_VENV_MODULES:-typesafe_sdk yaml keyring}"          # space-separated import names
 PY="$D/.venv/bin/python"; REQ="$D/requirements.txt"
 LOG="$D/logs/venv-rebuild.log"; LOCK="/tmp/venv-rebuild-$(printf %s "$D" | md5sum | cut -c1-12).lock"
 imports="import $(echo $MODS | tr ' ' ',')"
