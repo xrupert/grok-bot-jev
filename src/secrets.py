@@ -23,12 +23,20 @@ def _is_socket(p: Path) -> bool:
         return False
 
 
+def _bus_usable(addr: str) -> bool:
+    # Only trust an inherited address that points at a live unix socket.
+    if not addr.startswith("unix:path="):
+        return False
+    return _is_socket(Path(addr[len("unix:path="):].split(",", 1)[0]))
+
+
 def _pin_bus() -> None:
-    if os.environ.get("DBUS_SESSION_BUS_ADDRESS"):
+    # 2026-11-12 Engineer: also override a stale/dead inherited bus (Loop's shell had one -> NoKeyringError).
+    if _bus_usable(os.environ.get("DBUS_SESSION_BUS_ADDRESS", "")):
         return
     if _is_socket(BUS_SOCKET):
         os.environ["DBUS_SESSION_BUS_ADDRESS"] = f"unix:path={BUS_SOCKET}"
-        os.environ.setdefault("XDG_RUNTIME_DIR", str(BUS_SOCKET.parent))
+        os.environ["XDG_RUNTIME_DIR"] = str(BUS_SOCKET.parent)
 
 
 def _keyring_lookup() -> str:
