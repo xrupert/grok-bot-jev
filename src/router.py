@@ -173,7 +173,7 @@ ACTION_TO_CHOICE = {
     "stop_retry": "hold", "ask_human": "ask_chris",
 }
 CAUTION = ["proceed", "cheaper_lane", "hold", "ask_chris"]
-DECISION_TYPES = ("costly_action_gate", "needs_approval")
+DECISION_TYPES = ("costly_action_gate", "needs_approval", "creative_qc")
 DEFAULT_FLOOR = 0.5       # below: ask_chris ("ask me when it's really unsure (below 0.5)")
 DEFAULT_GATE_MIN = 0.70   # 0.5 to 0.70: proceed steps down to cheaper_lane
 NOT_A_GREEN = _greens.NOT_A_GREEN
@@ -312,6 +312,8 @@ def route_task(state: dict[str, Any]) -> dict[str, Any]:
     goal and re-raises Jev errors after logging a fail-closed row."""
     cfg = load_config()
     dec_path = resolve_decisions_path(cfg)
+    if state.get("decision_type") == "creative_qc":
+        return route_creative_qc(state, cfg, dec_path)
     try:
         goal = extract_goal(state)
     except GoalError:
@@ -421,3 +423,138 @@ def route_task(state: dict[str, Any]) -> dict[str, Any]:
     _write(choice, choice=jev_choice, confidence=conf, acted_on=acted_on, reason=reason,
            model=meta.get("model"), usage=usage, cost_cents=cents, cost_reason=creason or "")
     return out
+
+
+# ---- 2026-11-16 Engineer (Chris green t3082s12374, "retire the second door"): creative_qc ----
+# process-gate's QA.md judgment, moved off the retired 127.0.0.1:8787 service. Same question set
+# (jev-decision-layer/questions.py), same state ({"review", "facts_from_code"}), same policy
+# (jev_decide.policy, non-destructive): conf < 0.5 -> human; pass with blocking >= 0.5 -> human;
+# else the verdict choice. Every miss (gate off, empty text, no caller, no key, $5 cap, timeout,
+# API error) is decision "human" = BLOCK for human review. gate log_only and enforce act the same
+# here (the caller only lets "pass" through).
+
+QC_TEXT_MAX = 3500
+QC_FAIL = "human"
+QC_PRICE_USD_PER_TOKEN = 0.042 / 1e6  # 8787 estimate rate (jev_decide.PRICE)
+
+
+class CreativeQCError(Exception):
+    """Jev call failed for creative_qc; the row is already written. .out is the CLI payload."""
+
+    def __init__(self, exc: BaseException, err: str, out: dict[str, Any]):
+        super().__init__(f"{err} ({type(exc).__name__})")
+        self.cause, self.err, self.out = exc, err, out
+
+
+def qc_code_facts(text: str) -> dict[str, Any]:
+    """Math/dates/counts done in code, never asked of Jev (copied from jev_decide.code_facts)."""
+    import re
+    m = re.search(r"(\d+)/10", text)
+    return {"numbered_fixes": len(re.findall(r"(?:^|\s)\d\.\s", text)),
+            "timecodes": len(re.findall(r"\d:\d\d", text)),
+            "score_10": int(m.group(1)) if m else None}
+
+
+def qc_questions():
+    from typesafe_sdk import Choice, Noul, Score
+    return {
+        "verdict": Choice(
+            instructions="Read this QC review of a video draft. What verdict does the reviewer's content support?",
+            criteria={
+                "pass": "No remaining defects block shipping; notes are optional polish.",
+                "conditional": "Mostly approved; one or two contained fixes remain before shipping.",
+                "fail": "Multiple visible defects (frozen shots, mask errors, warping) block shipping.",
+            }),
+        "blocking": Noul(instructions="Does the review list at least one defect a viewer would clearly notice that must be fixed before shipping?"),
+        "severity": Score(
+            instructions="How severe are the remaining defects overall?",
+            criteria=["Cosmetic only, a viewer would not notice",
+                      "Minor polish a careful viewer might notice",
+                      "Noticeable defects that hurt quality",
+                      "Severe defects; looks broken or amateur"]),
+    }
+
+
+def qc_policy(verdict: str | None, conf: Any, blocking: Any, floor: float = DEFAULT_FLOOR) -> tuple[str, str]:
+    if conf is None or float(conf) < floor:
+        return QC_FAIL, "low_confidence"
+    if verdict == "pass" and blocking is not None and float(blocking) >= 0.5:
+        return QC_FAIL, "pass_with_blocking_defect"
+    if verdict not in ("pass", "conditional", "fail"):
+        return QC_FAIL, "unknown_verdict"
+    return verdict, f"jev:{verdict}"
+
+
+def route_creative_qc(state: dict[str, Any], cfg: dict[str, Any], dec_path) -> dict[str, Any]:
+    ctx = state.get("context") if isinstance(state.get("context"), dict) else {}
+    text = str(ctx.get("text") if ctx.get("text") is not None else state.get("text") or "")[-QC_TEXT_MAX:]
+    item = str(ctx.get("item_id") or state.get("item_id") or "")
+    goal = (ctx.get("goal") or state.get("goal") or f"creative_qc verdict for {item or 'item'}")
+    goal = str(goal).strip()[:300]
+    log_path = resolve_log_path(cfg)
+    floor, _ = thresholds(cfg)
+    cap_cents, window = _cost.cap_settings(cfg)
+    jstate = {"review": text, "facts_from_code": qc_code_facts(text)}
+
+    # Ledger row: no review text in it (input_hash only).
+    row = base_row({k: v for k, v in state.items() if k != "context"} | {"context": {
+        k: v for k, v in ctx.items() if k != "text"} | {"text_sha256": hashlib.sha256(text.encode()).hexdigest()[:16]}})
+    row.update(action="creative_qc", item_id=item, verdict=None, answers=None,
+               input_hash=hashlib.sha256(text.encode()).hexdigest()[:12])
+    if row["est_cost_cents"] is None:
+        row["est_cost_cents"] = round((len(json.dumps(jstate)) / 3.5 + 400) * QC_PRICE_USD_PER_TOKEN * 100, 6)
+    gate = gate_mode(cfg, "creative_qc")
+    if not cfg.get("enabled", True) or _bypassed({**state, "goal": goal}):
+        gate = "off"
+    row["mode"] = gate
+    t0 = time.monotonic()
+
+    def _done(decision: str, reason: str, acted: str, jev_used: bool = False, **kw) -> dict[str, Any]:
+        row.update(choice=decision, reason=reason, acted_on=acted, **kw)
+        row["latency_ms"] = int((time.monotonic() - t0) * 1000)
+        log_run(dec_path, dict(row))
+        log_run(log_path, {"event": "creative_qc", "caller": row["caller"], "goal": goal,
+                           "item_id": item, "decision": decision, "reason": reason, "gate": gate})
+        return {"decision_type": "creative_qc", "decision": decision, "choice": decision, "reason": reason,
+                "verdict": row.get("verdict"), "answers": row.get("answers"), "jev_used": jev_used,
+                "gate": gate, "model": row.get("model"), "usage": row.get("usage"),
+                "cost_cents": row.get("cost_cents"), "error": row.get("error") or ""}
+
+    if gate == "off":
+        return _done(QC_FAIL, "gate_off", "fail_closed")
+    if not text.strip():
+        return _done(QC_FAIL, "empty_text", "fail_closed", error="empty_text")
+    spent = _cost.spent_cents(dec_path, window)
+    est = row["est_cost_cents"] or 0.0
+    if spent >= cap_cents or est > cap_cents - spent:
+        detail = f"spent {spent:.4f}c of {cap_cents:.0f}c this {window}, estimate {est:.4f}c"
+        return _done(QC_FAIL, "cost_cap", "fail_closed", error=f"cost_cap: {detail}")
+    miss = "" if caller_present(state) else "precheck:caller_missing"
+    if not miss and not key_present():
+        miss = "precheck:key_missing"
+    if miss:
+        return _done(QC_FAIL, miss, "precheck_skip", error=miss)
+
+    limits = cfg.get("limits") or {}
+    timeout_s = float(limits.get("jev_timeout_s", DEFAULT_TIMEOUT_S))
+    try:
+        r = system_one(jstate, qc_questions(), model=cfg.get("model") or "jev-latest", timeout_s=timeout_s)
+    except Exception as exc:
+        timed_out = isinstance(exc, (JevTimeout, TimeoutError)) or "timeout" in type(exc).__name__.lower()
+        if isinstance(exc, MissingKeyError):
+            err = "key_missing"
+        else:
+            err = "jev_timeout" if timed_out else f"jev_error:{type(exc).__name__}"
+        out = _done(QC_FAIL, err.split(":")[0], "fail_closed", error=err, cost_reason="jev_call_failed")
+        raise CreativeQCError(exc, err, out) from exc
+
+    v = r.choices["verdict"]
+    conf = None if v.confidence is None else round(float(v.confidence), 4)
+    blocking = round(float(r.nouls["blocking"].noul), 4)
+    severity = r.scores["severity"].score
+    verdict = {"choice": v.choice, "confidence": conf}
+    decision, reason = qc_policy(v.choice, conf, blocking, floor)
+    cents, usage, creason = _cost.cost_from_usage(getattr(r, "usage", None), cfg)
+    return _done(decision, reason, "jev", jev_used=True, confidence=conf, verdict=verdict,
+                 answers={"verdict": verdict, "blocking": blocking, "severity": severity},
+                 model=getattr(r, "model", None), usage=usage, cost_cents=cents, cost_reason=creason or "")

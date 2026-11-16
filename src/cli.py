@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sys
 
-from src.router import GoalError, route_task, write_error_row
+from src.router import CreativeQCError, GoalError, route_task, write_error_row
 from src.secrets import MissingKeyError
 
 # Exit codes (2026-11-12 Engineer): nonzero never means proceed.
@@ -22,9 +22,12 @@ Appends one line to config/greens.yaml (append-only). Free text and placeholders
 
 def _fail(code: int, error: str, msg: str, state: dict | None = None) -> int:
     dtype = (state or {}).get("decision_type")
-    choice = "ask_chris" if dtype == "needs_approval" else "hold"
+    choice = {"needs_approval": "ask_chris", "creative_qc": "human"}.get(dtype, "hold")
     print(f"jev-cli: {msg}", file=sys.stderr)
-    print(json.dumps({"error": error, "choice": choice, "jev_used": False, "exit_code": code}))
+    payload = {"error": error, "choice": choice, "jev_used": False, "exit_code": code}
+    if dtype == "creative_qc":
+        payload.update(decision="human", reason=error.split(":")[0], decision_type="creative_qc")
+    print(json.dumps(payload))
     return code
 
 
@@ -76,6 +79,11 @@ def main(argv: list[str] | None = None) -> int:
         out = route_task(state)
     except GoalError as exc:
         return _fail(EXIT_USAGE, "goal_required", str(exc), state)
+    except CreativeQCError as exc:  # row already written; decision human (fail closed)
+        code = EXIT_KEY_MISSING if exc.err == "key_missing" else EXIT_JEV_ERROR
+        print(f"jev-cli: creative_qc Jev call failed ({type(exc.cause).__name__}); decision human", file=sys.stderr)
+        print(json.dumps(exc.out | {"exit_code": code}, default=str))
+        return code
     except MissingKeyError as exc:
         return _fail(EXIT_KEY_MISSING, "key_missing",
                      f"{exc}. Failing closed; do not treat as proceed. "
