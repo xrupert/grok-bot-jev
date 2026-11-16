@@ -238,3 +238,5 @@ entries:
   - {id: "chris-20261115-1825-t3064s12266-dfs-wk10", kind: green, source: "posting ledger L1108 green", added_by: "Engineer seed", added: "2026-11-16"}
   - {id: "t3064s12266", kind: green, source: "posting ledger L1108 green", added_by: "Engineer seed", added: "2026-11-16"}
   - {id: "chris-20261116-0659-t3066s12281-wk10-lineups", kind: green, source: "posting ledger L1132 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3085s12393", kind: green, source: "card t3085s12393, 11/16 11:15 AM ET: push c690957+79b3955 to xrupert/grok-bot-jev", added_by: "Primo", added: "2026-11-16T11:16-05:00"}
+  - {id: "t3088s12413", kind: green, source: "card t3088s12413, 11/16 11:37 AM ET: push a274799 + greens.yaml commit to xrupert/grok-bot-jev", added_by: "Primo", added: "2026-11-16T11:37-05:00"}
