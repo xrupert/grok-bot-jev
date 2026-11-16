@@ -9,6 +9,7 @@ import time
 from src.config import gate_mode, load_config, resolve_decisions_path, resolve_log_path
 from src.jev_client import system_one
 from src.logger import log_run
+from src import secrets as _secrets
 from src.secrets import MissingKeyError
 
 
@@ -176,8 +177,53 @@ def extract_goal(state: dict[str, Any]) -> str:
 
 
 def _step_down(choice: str) -> str:
-    i = CAUTION.index(choice)
-    return CAUTION[min(i + 1, len(CAUTION) - 1)]
+    # 2026-11-16 Engineer (Chris green t3075s12340): low confidence steps proceed to cheaper_lane only.
+    # It never turns cheaper_lane into hold, or hold into ask_chris (those came from Jev itself).
+    return _more_cautious(choice, "cheaper_lane")
+
+
+# ---- 2026-11-16 Engineer: Jev gate fixes (Karen REPORT jev-friction-2026-11-16) ----
+NOT_A_GREEN = {"none", "null", "n/a", "na", "no", "false", "0", "pending", "tbd", "unknown", "-", "?", "nil"}
+
+
+def valid_green(green: Any) -> bool:
+    """A named green: non-empty, at least 3 chars, not a placeholder word."""
+    if not isinstance(green, str):
+        return False
+    g = green.strip()
+    return len(g) >= 3 and g.lower() not in NOT_A_GREEN
+
+
+def decide(dtype: str, green: Any, jev_action: str, conf: Any, conf_min: float) -> str:
+    """Pure gate rule (Fix 1). Used by route_task and by the offline replay.
+    - needs_approval with no valid green: ask_chris, always (fail closed).
+    - valid green named: proceed (Jev's account/ask_human read no longer re-asks Chris),
+      except stop_retry stays hold (a green approves the action, not a retry loop).
+    - otherwise Jev's choice; below conf_min, proceed steps to cheaper_lane (never to hold)."""
+    choice = ACTION_TO_CHOICE.get(jev_action, "hold")
+    if dtype == "needs_approval" and not valid_green(green):
+        return "ask_chris"
+    if valid_green(green):
+        return "hold" if choice == "hold" else "proceed"
+    if conf is not None and float(conf) < conf_min:
+        choice = _step_down(choice)
+    return choice
+
+
+def key_present() -> bool:
+    """Fix 2: True if TYPESAFE_API_KEY is in env or the box keyring. Bool only; never returns,
+    prints or logs the value. Resolves via secrets.ensure path so the later call reuses it."""
+    try:
+        return bool(_secrets.ensure_typesafe_api_key())
+    except MissingKeyError:
+        return False
+    except Exception:
+        return False
+
+
+def caller_present(state: dict[str, Any]) -> bool:
+    c = state.get("caller")
+    return isinstance(c, str) and bool(c.strip()) and c.strip().lower() != "unknown"
 
 
 def _more_cautious(a: str, b: str) -> str:
@@ -211,7 +257,7 @@ def route_task(state: dict[str, Any]) -> dict[str, Any]:
 
     # needs_approval code rule runs before Jev, in every mode.
     if dtype == "needs_approval":
-        baseline = "proceed" if green else "ask_chris"
+        baseline = "proceed" if valid_green(green) else "ask_chris"
     else:
         baseline = "proceed"
 
@@ -219,7 +265,7 @@ def route_task(state: dict[str, Any]) -> dict[str, Any]:
         "caller": state.get("caller") or "unknown", "decision_type": dtype,
         "action": ctx.get("action") or state.get("action") or "", "input_hash": _input_hash(state),
         "choice": None, "confidence": None, "mode": gate, "acted_on": None,
-        "green": green if dtype == "needs_approval" else "", "outcome": None,
+        "green": green, "outcome": None,
         "cost_cents": None, "latency_ms": None, "error": "",
     }
     t0 = time.monotonic()
@@ -238,6 +284,22 @@ def route_task(state: dict[str, Any]) -> dict[str, Any]:
         log_run(log_path, {"event": "route", "goal": goal[:300], **{k: out[k] for k in ("action", "reason", "gate")}})
         return out
 
+    # Fix 2 (2026-11-16): precheck key + caller before any Jev call. On a miss: skip, log, no raise.
+    miss = "" if caller_present(state) else "precheck:caller_missing"
+    if not miss and not key_present():
+        miss = "precheck:key_missing"
+    if miss:
+        if gate == "enforce":
+            # No Jev read: needs_approval uses the code rule, anything else holds (fail closed).
+            choice, acted_on = (baseline if dtype == "needs_approval" else "hold"), "precheck_skip"
+        else:
+            choice, acted_on = baseline, "old"
+        out = {"action": "skipped", "reason": miss, "mode": cfg.get("mode"), "gate": gate,
+               "jev_used": False, "details": {}, "choice": choice, "jev_choice": None,
+               "confidence": None, "acted_on": acted_on, "error": miss}
+        _write(choice=choice, acted_on=acted_on, error=miss)
+        return out
+
     jstate = dict(state)
     jstate["goal"] = goal
     for k in ("cached_artifact", "prior_error", "same_error_count"):
@@ -252,13 +314,8 @@ def route_task(state: dict[str, Any]) -> dict[str, Any]:
         _write(error=f"jev_error:{type(exc).__name__}", acted_on="fail_closed")
         raise
 
-    jev_choice = ACTION_TO_CHOICE.get(out["action"], "hold")
     conf = out["details"].get("intent_confidence")
-    if conf is not None and float(conf) < conf_min:
-        jev_choice = _step_down(jev_choice)
-    if dtype == "needs_approval":
-        # Jev can add doubt but never clears a missing green.
-        jev_choice = _more_cautious(jev_choice, baseline)
+    jev_choice = decide(dtype, green, out["action"], conf, conf_min)
 
     if gate == "enforce":
         choice, acted_on = jev_choice, "jev"

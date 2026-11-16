@@ -35,6 +35,9 @@ class Base(unittest.TestCase):
                     "gate": "log_only"}
         p = mock.patch.object(router, "load_config", lambda: dict(self.cfg))
         p.start(); self.addCleanup(p.stop)
+        # 2026-11-16 Engineer: tests never read the real box keyring (Fix 2 precheck).
+        k = mock.patch.object(router, "key_present", return_value=True)
+        k.start(); self.addCleanup(k.stop)
 
     def run_cli(self, state):
         out, err = io.StringIO(), io.StringIO()
