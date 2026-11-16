@@ -1,0 +1,240 @@
+# Chris green registry for the Jev gate (grok-bot-jev). APPEND-ONLY.
+# Created 2026-11-16 by Engineer under Chris green t3082s12374 ("real green check").
+# A green passes only if an id in it is listed here as kind green or standing (and not revoked later).
+# Add:    .venv/bin/python -m src.cli greens add <id> --source "<card/message, time ET>" --by Primo [--standing]
+# Revoke: .venv/bin/python -m src.cli greens revoke <id> --source "<why>" --by Primo
+# Never edit or delete existing lines. `entries:` must stay the last key.
+# Seeded from decisions.jsonl + posting ledger green fields (ids only; free text and placeholders rejected),
+# standing permissions (house_rules.md:43, shared memory), and today's Primo-verified cards.
+# Short bare ids (t4u, t82u, t258u) come from bot chats other than Primo's and may collide across chats.
+entries:
+  - {id: "t2070u", kind: standing, source: "Chris 2026-10-28 7:45 PM ET standing: breaking-news cards post without asking (shared memory; house_rules)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "standing-t2070u-standard-v2", kind: standing, source: "t2070u + breaking-news standard v2 (Chris 10/31 8:45 AM ET)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2070u-standard-v2", kind: standing, source: "t2070u + breaking-news standard v2 (Chris 10/31 8:45 AM ET)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "breaking-news-standard-v2", kind: standing, source: "breaking-news standard v2 (Chris 10/31 8:45 AM ET), rides on t2070u", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261028-1945-newscards", kind: standing, source: "ledger id for standing t2070u", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2147u", kind: standing, source: "Chris NFL cap lift on t2070u news cards", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3067u", kind: standing, source: "Chris 2026-11-16 7:01 AM ET standing: numbers cards that pass cross-checks (shared memory)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2972u", kind: standing, source: "Chris 2026-11-10 standing: every Dirt Canon post set to public/Everyone (shared memory)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2419u", kind: standing, source: "Chris 2026-11-01 standing: TikTok privacy Everyone on approved posts", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2199u", kind: standing, source: "Chris 2026-10-30 10:17 AM ET standing 14-day archive purge (abathur-2)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3066s12281", kind: green, source: "Chris card 6:59 AM ET 11/16 wk10 lineups (Primo pos 12285)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3075s12340", kind: green, source: "Chris card 9:54 AM ET 11/16 Jev fixes on box (Primo transcript)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3077s12352", kind: green, source: "Chris card 10:03 AM ET 11/16 Jev enforce + push (Primo transcript)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3080u", kind: green, source: "Chris 10:06 AM ET 11/16 read-only Jev audit ask (Primo transcript)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3082s12374", kind: green, source: "Chris card 10:19 AM ET 11/16 jevfix2 green (Primo pos 12375-12379)", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t406s1561", kind: green, source: "decisions.jsonl L86", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t411s1582", kind: green, source: "decisions.jsonl L87", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1329u", kind: green, source: "decisions.jsonl L90", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1335u", kind: green, source: "decisions.jsonl L91", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t10u", kind: green, source: "decisions.jsonl L93", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261022-1919-readonly", kind: green, source: "decisions.jsonl L95", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261022-2025-scheduled", kind: green, source: "decisions.jsonl L96", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261022-2010-ledger", kind: green, source: "decisions.jsonl L97", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261022-2207-p0", kind: green, source: "decisions.jsonl L98", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261023-0858-gaps", kind: green, source: "decisions.jsonl L100", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261023-1859-clip1853", kind: green, source: "decisions.jsonl L102", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-1018-singlesrest", kind: green, source: "decisions.jsonl L105", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-1024-restart", kind: green, source: "decisions.jsonl L105", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-1105-fblinkinbio", kind: green, source: "decisions.jsonl L105", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261025-0826-hermes-fix-b", kind: green, source: "decisions.jsonl L108", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-1152-dfsw7", kind: green, source: "decisions.jsonl L117", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-1314-true25follow", kind: green, source: "decisions.jsonl L119", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-1321-true25igyes", kind: green, source: "decisions.jsonl L119", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-1400-true25x1caption", kind: green, source: "decisions.jsonl L119", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261027-0856-w7-movement", kind: green, source: "decisions.jsonl L122", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1842u", kind: green, source: "decisions.jsonl L124", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261027-0953-w7-tt-yt", kind: green, source: "decisions.jsonl L127", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1850u", kind: green, source: "decisions.jsonl L127", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261028-0818-mc1b", kind: green, source: "decisions.jsonl L131", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1958u", kind: green, source: "decisions.jsonl L131", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261028-0826-bbh", kind: green, source: "decisions.jsonl L133", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1962u", kind: green, source: "decisions.jsonl L133", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261028-0827-o1", kind: green, source: "decisions.jsonl L135", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1963u", kind: green, source: "decisions.jsonl L135", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261028-0839-o1now", kind: green, source: "decisions.jsonl L137", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261028-0826-mc-afternoon", kind: green, source: "decisions.jsonl L138", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-1049-fb-nolink", kind: green, source: "decisions.jsonl L140", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261028-0902-t1971u", kind: green, source: "decisions.jsonl L140", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1971u", kind: green, source: "decisions.jsonl L140", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261028-1304-g4-bouncer", kind: green, source: "decisions.jsonl L145", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261028-1320-jh-tooth", kind: green, source: "decisions.jsonl L147", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261028-1643-ali", kind: green, source: "decisions.jsonl L151", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2054u", kind: green, source: "decisions.jsonl L151", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2087u", kind: green, source: "decisions.jsonl L151", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261029-0853-ali-final3", kind: green, source: "decisions.jsonl L157", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261029-0859-o2-kiffin", kind: green, source: "decisions.jsonl L159", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261029-1255-simmons-official", kind: green, source: "decisions.jsonl L171", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261030-1552-franks-college", kind: green, source: "decisions.jsonl L186", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261030-1846-franks-tiktok-anyway", kind: green, source: "decisions.jsonl L193", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261030-1906-sat30", kind: green, source: "decisions.jsonl L197", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2349u", kind: green, source: "decisions.jsonl L200", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2349u", kind: green, source: "decisions.jsonl L200", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261030-1551-kalshi-clip1", kind: green, source: "decisions.jsonl L220", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t782u", kind: green, source: "decisions.jsonl L248", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261030-1605-kalshi-clips", kind: green, source: "decisions.jsonl L251", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2416u-20261101-1525", kind: green, source: "decisions.jsonl L271", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2416u", kind: green, source: "decisions.jsonl L271", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2419u-20261101-1620", kind: green, source: "decisions.jsonl L275", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2433u", kind: green, source: "decisions.jsonl L281", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2430u-20261101-1821", kind: green, source: "decisions.jsonl L282", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2430u", kind: green, source: "decisions.jsonl L282", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261102-0933-routefix", kind: green, source: "decisions.jsonl L293", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261102-0935-utmcampaign", kind: green, source: "decisions.jsonl L294", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261102-0945-utmcap2", kind: green, source: "decisions.jsonl L295", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2460u", kind: green, source: "decisions.jsonl L296", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2460u-20261102-0951", kind: green, source: "decisions.jsonl L297", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2480s10026", kind: green, source: "decisions.jsonl L302", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261102-1300-fdv2", kind: green, source: "decisions.jsonl L304", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2489s10070", kind: green, source: "decisions.jsonl L306", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2495s10092", kind: green, source: "decisions.jsonl L307", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t13s2", kind: green, source: "decisions.jsonl L313", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261103-0758-w8-movement", kind: green, source: "decisions.jsonl L314", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261104-1030-nhl-lineups", kind: green, source: "decisions.jsonl L322", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2560u-20261104-bbh", kind: green, source: "decisions.jsonl L342", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2560u", kind: green, source: "decisions.jsonl L342", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2566u", kind: green, source: "decisions.jsonl L344", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2589u", kind: green, source: "decisions.jsonl L364", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261104-1024-tbih-ep1", kind: green, source: "decisions.jsonl L372", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261102-1051-nba-plan", kind: green, source: "decisions.jsonl L378", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261104-combined", kind: green, source: "decisions.jsonl L378", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t70u", kind: green, source: "decisions.jsonl L385", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2628u", kind: green, source: "decisions.jsonl L387", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2629u", kind: green, source: "decisions.jsonl L387", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2628u-t2629u-20261105", kind: green, source: "decisions.jsonl L389", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2657s10695", kind: green, source: "decisions.jsonl L404", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t74u", kind: green, source: "decisions.jsonl L406", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2660s10712", kind: green, source: "decisions.jsonl L411", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2623s10560", kind: green, source: "decisions.jsonl L423", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2831u", kind: green, source: "decisions.jsonl L430", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2836u", kind: green, source: "decisions.jsonl L434", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2837u", kind: green, source: "decisions.jsonl L435", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2860u", kind: green, source: "decisions.jsonl L444", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2860s11365", kind: green, source: "decisions.jsonl L445", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2861u", kind: green, source: "decisions.jsonl L447", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2862s11377", kind: green, source: "decisions.jsonl L448", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2868s11400", kind: green, source: "decisions.jsonl L450", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2871s11411", kind: green, source: "decisions.jsonl L453", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2872u", kind: green, source: "decisions.jsonl L453", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2900s11515", kind: green, source: "decisions.jsonl L455", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2904s11538", kind: green, source: "decisions.jsonl L456", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t258u-20261109-1705", kind: green, source: "decisions.jsonl L458", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t258u", kind: green, source: "decisions.jsonl L458", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2925u", kind: green, source: "decisions.jsonl L463", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t550u", kind: green, source: "decisions.jsonl L464", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2937u", kind: green, source: "decisions.jsonl L465", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2919s11622", kind: green, source: "decisions.jsonl L468", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2919s11622", kind: green, source: "decisions.jsonl L468", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2921s11635", kind: green, source: "decisions.jsonl L468", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2570u", kind: green, source: "decisions.jsonl L470", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2571u", kind: green, source: "decisions.jsonl L470", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3002s11966", kind: green, source: "decisions.jsonl L472", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t3008s11999-20261112-0928", kind: green, source: "decisions.jsonl L473", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3008s11999", kind: green, source: "decisions.jsonl L473", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t3008s11999", kind: green, source: "decisions.jsonl L476", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t82u", kind: green, source: "decisions.jsonl L478", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3018s12052", kind: green, source: "decisions.jsonl L479", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t3018s12052", kind: green, source: "decisions.jsonl L482", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3022s12074", kind: green, source: "decisions.jsonl L484", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t3022s12074", kind: green, source: "decisions.jsonl L485", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3023s12081", kind: green, source: "decisions.jsonl L487", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t3023s12081", kind: green, source: "decisions.jsonl L488", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t3024s12088", kind: green, source: "decisions.jsonl L490", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3024s12088", kind: green, source: "decisions.jsonl L490", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3039s12158", kind: green, source: "decisions.jsonl L494", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3040s12162", kind: green, source: "decisions.jsonl L495", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3043u", kind: green, source: "decisions.jsonl L499", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261114-0918-t127-kalshi-wk10", kind: green, source: "decisions.jsonl L501", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3063u", kind: green, source: "decisions.jsonl L509", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3070s12303", kind: green, source: "decisions.jsonl L520", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3069s12298", kind: green, source: "decisions.jsonl L521", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261023-1513-clip1453", kind: green, source: "posting ledger L50 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-0936-wmutoledo", kind: green, source: "posting ledger L60 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-1016-noonsingles", kind: green, source: "posting ledger L62 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-1020-ledgerfix", kind: green, source: "posting ledger L86 supersede_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-1027-v2font", kind: green, source: "posting ledger L88 art_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-1014-retime", kind: green, source: "posting ledger L98 retime_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-1019-noonart", kind: green, source: "posting ledger L143 art_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-1038-v3font", kind: green, source: "posting ledger L187 art_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-2231-hedue-greened", kind: green, source: "posting ledger L310 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261025-0823-gingerblur", kind: green, source: "posting ledger L316 green_2", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261025-0843-saints-steelers", kind: green, source: "posting ledger L319 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261024-1014-slateledger", kind: green, source: "posting ledger L319 slate_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261025-0850-forget-poll", kind: green, source: "posting ledger L325 supersede_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-0854-allsocial", kind: green, source: "posting ledger L348 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1575u", kind: green, source: "posting ledger L348 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1579u", kind: green, source: "posting ledger L348 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-0907-capa", kind: green, source: "posting ledger L358 green_captions", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-0904-cut", kind: green, source: "posting ledger L358 green_cut", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-0955-crimefiles", kind: green, source: "posting ledger L368 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-1018-crimefiles-retime", kind: green, source: "posting ledger L374 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-1019-crimefiles-fb", kind: green, source: "posting ledger L375 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261026-1049-crimefiles-fb-nolink", kind: green, source: "posting ledger L392 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1646u", kind: green, source: "posting ledger L398 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1819s7391", kind: green, source: "posting ledger L430 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1804u", kind: green, source: "posting ledger L430 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1824u", kind: green, source: "posting ledger L436 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1835u", kind: green, source: "posting ledger L445 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1837u", kind: green, source: "posting ledger L445 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1998u", kind: green, source: "posting ledger L521 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t1988u", kind: green, source: "posting ledger L521 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2148u", kind: green, source: "posting ledger L558 green_followup", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2222s8958", kind: green, source: "posting ledger L576 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2223u", kind: green, source: "posting ledger L578 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2225s8980", kind: green, source: "posting ledger L583 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2253u", kind: green, source: "posting ledger L590 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2530s10226", kind: green, source: "posting ledger L815 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2552u", kind: green, source: "posting ledger L863 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2558u", kind: green, source: "posting ledger L863 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2559u", kind: green, source: "posting ledger L863 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2628s10595", kind: green, source: "posting ledger L935 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2701s10864-20261106", kind: green, source: "posting ledger L954 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2701s10864", kind: green, source: "posting ledger L954 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2860s11365-20261107-1143", kind: green, source: "posting ledger L959 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2880s11441-20261107-1236", kind: green, source: "posting ledger L962 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2880s11441", kind: green, source: "posting ledger L962 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "logan-t4u-20261109-1718", kind: green, source: "posting ledger L971 supersede_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t4u", kind: green, source: "posting ledger L971 supersede_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "logan-t5u-20261109-1718", kind: green, source: "posting ledger L974 supersede_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t5u", kind: green, source: "posting ledger L974 supersede_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "logan-t5s2-20261109-1719", kind: green, source: "posting ledger L977 supersede_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t5s2", kind: green, source: "posting ledger L977 supersede_green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2917s11600-20261110-0832", kind: green, source: "posting ledger L981 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2917s11600", kind: green, source: "posting ledger L981 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2910s11562-20261110-0813", kind: green, source: "posting ledger L981 green_followup", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2916s11591-20261110-0815", kind: green, source: "posting ledger L981 green_followup", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2910s11562", kind: green, source: "posting ledger L981 green_followup", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2916s11591", kind: green, source: "posting ledger L981 green_followup", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2919s11622-20261110-0854", kind: green, source: "posting ledger L986 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2915s11573-20261110-0814", kind: green, source: "posting ledger L986 green_followup", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2918s11613-20261110-0853", kind: green, source: "posting ledger L986 green_followup", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2915s11573", kind: green, source: "posting ledger L986 green_followup", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2918s11613", kind: green, source: "posting ledger L986 green_followup", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2921s11635-20261110-0855", kind: green, source: "posting ledger L990 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2934s11687-20261110-1241", kind: green, source: "posting ledger L994 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2934s11687", kind: green, source: "posting ledger L994 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2938s11707-20261110-1249", kind: green, source: "posting ledger L997 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2938s11707", kind: green, source: "posting ledger L997 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2940u-20261110-1306", kind: green, source: "posting ledger L1000 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2940u", kind: green, source: "posting ledger L1000 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2941u", kind: green, source: "posting ledger L1000 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2964u-t2965s11830-t2967u-20261110-1619", kind: green, source: "posting ledger L1020 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2964u", kind: green, source: "posting ledger L1020 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2965s11830", kind: green, source: "posting ledger L1020 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2967u", kind: green, source: "posting ledger L1020 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2973u-t2964u-t2965s11830-t2967u-20261110-1736", kind: green, source: "posting ledger L1023 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2973u", kind: green, source: "posting ledger L1023 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2980s11879-20261111-0715", kind: green, source: "posting ledger L1026 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2980s11879", kind: green, source: "posting ledger L1026 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2983s11893-20261111-1116", kind: green, source: "posting ledger L1029 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2983s11893", kind: green, source: "posting ledger L1029 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-t2989s11921-20261111-2031+t2991u-times", kind: green, source: "posting ledger L1032 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2989s11921", kind: green, source: "posting ledger L1032 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2991u", kind: green, source: "posting ledger L1032 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t2990u", kind: green, source: "posting ledger L1032 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t126s317", kind: green, source: "posting ledger L1078 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3047u", kind: green, source: "posting ledger L1078 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3049u", kind: green, source: "posting ledger L1078 green_quote", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261115-1825-t3064s12266-dfs-wk10", kind: green, source: "posting ledger L1108 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "t3064s12266", kind: green, source: "posting ledger L1108 green", added_by: "Engineer seed", added: "2026-11-16"}
+  - {id: "chris-20261116-0659-t3066s12281-wk10-lineups", kind: green, source: "posting ledger L1132 green", added_by: "Engineer seed", added: "2026-11-16"}
