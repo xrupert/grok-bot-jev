@@ -15,7 +15,11 @@ gate: "log_only"
 gate_types: {}
 
 thresholds:
-  gate_confidence_min: 0.70  # below this, step one tier toward caution
+  # 2026-11-16 (Chris t3082s12374): below ask_chris_below -> ask_chris ("ask me when it's really unsure").
+  # ask_chris_below to gate_confidence_min -> proceed steps down to cheaper_lane.
+  # A recorded green (config/greens.yaml) proceeds on publish/delete at any confidence.
+  ask_chris_below: 0.5
+  gate_confidence_min: 0.70
   min_choice_confidence: 0.55
   reuse_min: 0.65
   subagent_min: 0.75
@@ -23,6 +27,20 @@ thresholds:
 limits:
   max_browser_sources: 5
   max_retries_same_error: 1
+  jev_timeout_s: 3  # wall-clock limit on the Jev call; timeout fails closed
+
+# $5 hard cap (Primo's, kept by Chris 11/16). Spend = cost_cents of Jev calls + committed_cents
+# (est_cost_cents/budget_cents_cap of steps the gate let through) in the window. At or over cap, or
+# when a call's estimate is over what is left: ask_chris, reason cost_cap.
+cost:
+  cap_cents: 500
+  window: calendar_month_et  # calendar_month_et | rolling_30d | all
+  usd_per_mtok_input: 0.042  # TypeSafe returns tokens, not price; rate from the 8787 service
+  usd_per_mtok_output: 0.0
+
+# Chris green registry (append-only). Add with: python -m src.cli greens add <id> --source ... --by Primo
+greens:
+  path: config/greens.yaml
 
 logging:
   path: logs/runs.jsonl

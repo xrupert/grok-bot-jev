@@ -26,9 +26,11 @@ class KeyOK(Base):
 
 class TestDecideRule(KeyOK):
     def test_valid_green(self):
-        for g in ("t3075s12340", "chris-20261116-0659-t3066s12281-wk10-lineups", "routine-self-delete-after-run"):
+        for g in ("t3075s12340", "chris-20261116-0659-t3066s12281-wk10-lineups"):
             self.assertTrue(router.valid_green(g), g)
-        for g in ("", "  ", None, "none", "N/A", "pending", "tbd", "unknown", "no", "false", "-"):
+        # jevfix2: free text is no longer a green (t3082s12374 "real green check")
+        for g in ("", "  ", None, "none", "N/A", "pending", "tbd", "unknown", "no", "false", "-",
+                  "routine-self-delete-after-run"):
             self.assertFalse(router.valid_green(g), g)
 
     def test_named_green_overrides_jev_ask_chris(self):

@@ -25,6 +25,16 @@ def _fake_result(intent="lookup", conf=0.9):
     )
 
 
+TEST_GREENS = """entries:
+  - {id: "t2070u", kind: standing, source: "test", added_by: "test", added: "2026-11-16"}
+  - {id: "t1s2", kind: green, source: "test", added_by: "test", added: "2026-11-16"}
+  - {id: "t1u", kind: green, source: "test", added_by: "test", added: "2026-11-16"}
+  - {id: "t3066s12281", kind: green, source: "test", added_by: "test", added: "2026-11-16"}
+  - {id: "t3075s12340", kind: green, source: "test", added_by: "test", added: "2026-11-16"}
+  - {id: "chris-20261116-0659-t3066s12281-wk10-lineups", kind: green, source: "test", added_by: "test", added: "2026-11-16"}
+"""
+
+
 class Base(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -38,6 +48,11 @@ class Base(unittest.TestCase):
         # 2026-11-16 Engineer: tests never read the real box keyring (Fix 2 precheck).
         k = mock.patch.object(router, "key_present", return_value=True)
         k.start(); self.addCleanup(k.stop)
+        # 2026-11-16 jevfix2: tests use their own green registry, never config/greens.yaml.
+        self.greens_path = Path(self.tmp.name) / "greens.yaml"
+        self.greens_path.write_text(TEST_GREENS, encoding="utf-8")
+        g = mock.patch.dict(os.environ, {"JEV_GREENS_PATH": str(self.greens_path)})
+        g.start(); self.addCleanup(g.stop)
 
     def run_cli(self, state):
         out, err = io.StringIO(), io.StringIO()
@@ -134,7 +149,10 @@ class TestGateModes(Base):
     state = {"decision_type": "costly_action_gate", "caller": "t", "context": {"goal": "browse 3 sites"}}
 
     def test_config_ships_log_only(self):
-        self.assertEqual(config.normalize_gate(config.load_config().get("gate")), "log_only")
+        # 2026-11-16 jevfix2: check the shipped example, not the box's local config.yaml (enforce since 11/16).
+        import yaml
+        shipped = yaml.safe_load(config.EXAMPLE_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(config.normalize_gate(shipped.get("gate")), "log_only")
 
     def test_yaml_off_boolean(self):
         self.assertEqual(config.normalize_gate(False), "off")
